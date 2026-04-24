@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PM Study Notes</title>
+
+<!-- Marked: Markdown -> HTML -->
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<!-- highlight.js для коду -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css">
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+
+<style>
+  :root {
+    --bg: #0f1220;
+    --bg-soft: #161a2e;
+    --panel: #1a1f38;
+    --text: #e7e9f3;
+    --muted: #9aa3c7;
+    --accent: #7c5cff;
+    --accent-2: #22d3ee;
+    --border: #262c4a;
+    --code-bg: #0b0e1c;
+    --shadow: 0 10px 30px rgba(0,0,0,.35);
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f7f8fc;
+      --bg-soft: #ffffff;
+      --panel: #ffffff;
+      --text: #1a1d2e;
+      --muted: #5b6388;
+      --accent: #5b3df5;
+      --accent-2: #0891b2;
+      --border: #e5e8f2;
+      --code-bg: #0b0e1c;
+      --shadow: 0 10px 30px rgba(20,20,50,.08);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 16px; line-height: 1.65; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .app { display: grid; grid-template-columns: 300px 1fr; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    background: var(--bg-soft);
+    border-right: 1px solid var(--border);
+    padding: 24px 16px;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 700; font-size: 18px; margin-bottom: 20px;
+    padding: 0 8px;
+  }
+  .brand-badge {
+    width: 34px; height: 34px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    display: grid; place-items: center; color: white; font-weight: 800;
+    box-shadow: var(--shadow);
+  }
+  .nav-list { list-style: none; padding: 0; margin: 0; }
+  .nav-item a {
+    display: block; padding: 10px 12px; border-radius: 8px;
+    color: var(--text); font-size: 14px; margin-bottom: 4px;
+    border: 1px solid transparent;
+  }
+  .nav-item a:hover { background: var(--panel); text-decoration: none; border-color: var(--border); }
+  .nav-item a.active {
+    background: linear-gradient(135deg, rgba(124,92,255,.15), rgba(34,211,238,.10));
+    border-color: var(--border);
+    color: var(--text); font-weight: 600;
+  }
+  .nav-num {
+    display: inline-block; width: 22px; height: 22px; line-height: 22px;
+    text-align: center; border-radius: 6px; font-size: 12px;
+    background: var(--panel); color: var(--muted); margin-right: 8px;
+    border: 1px solid var(--border);
+  }
+  .nav-item a.active .nav-num {
+    background: var(--accent); color: white; border-color: transparent;
+  }
+
+  .sidebar-footer { margin-top: 24px; padding: 12px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); }
+
+  /* Content */
+  .content { padding: 40px 56px 80px; max-width: 900px; }
+  .content-header { margin-bottom: 24px; color: var(--muted); font-size: 13px; }
+  .content-header .chip {
+    display: inline-block; padding: 4px 10px; border-radius: 999px;
+    background: var(--panel); border: 1px solid var(--border);
+  }
+
+  article h1, article h2, article h3, article h4 { line-height: 1.25; }
+  article h1 { font-size: 2.1rem; margin: 0 0 16px; }
+  article h2 { font-size: 1.5rem; margin: 2rem 0 .75rem; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  article h3 { font-size: 1.2rem; margin: 1.5rem 0 .5rem; color: var(--accent); }
+  article p { margin: .75rem 0; }
+  article ul, article ol { padding-left: 1.4rem; }
+  article li { margin: .3rem 0; }
+  article blockquote {
+    margin: 1rem 0; padding: 10px 16px;
+    border-left: 4px solid var(--accent); background: var(--panel);
+    border-radius: 6px; color: var(--muted);
+  }
+  article code {
+    background: var(--panel); padding: 2px 6px; border-radius: 4px;
+    font-size: .9em; border: 1px solid var(--border);
+  }
+  article pre {
+    background: var(--code-bg); padding: 16px; border-radius: 10px;
+    overflow-x: auto; border: 1px solid var(--border);
+  }
+  article pre code { background: transparent; border: none; padding: 0; color: #e7e9f3; }
+  article table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .95em; }
+  article th, article td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+  article th { background: var(--panel); }
+  article img { max-width: 100%; border-radius: 8px; }
+  article hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+  /* Pager */
+  .pager {
+    display: flex; justify-content: space-between; gap: 12px;
+    margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border);
+  }
+  .pager a {
+    flex: 1; padding: 14px 18px; border: 1px solid var(--border);
+    border-radius: 10px; background: var(--panel); color: var(--text);
+    transition: transform .15s ease, border-color .15s ease;
+  }
+  .pager a:hover { transform: translateY(-2px); border-color: var(--accent); text-decoration: none; }
+  .pager .label { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+  .pager .title { display: block; font-weight: 600; margin-top: 4px; }
+  .pager .next { text-align: right; }
+  .pager .disabled { opacity: .4; pointer-events: none; }
+
+  /* Loading / error */
+  .state { padding: 40px; text-align: center; color: var(--muted); }
+  .spinner {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 3px solid var(--border); border-top-color: var(--accent);
+    animation: spin 1s linear infinite; margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Mobile */
+  .menu-toggle {
+    display: none; position: fixed; top: 14px; left: 14px; z-index: 20;
+    background: var(--panel); color: var(--text); border: 1px solid var(--border);
+    padding: 8px 12px; border-radius: 8px; cursor: pointer;
+  }
+  @media (max-width: 860px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar {
+      position: fixed; left: 0; top: 0; width: 280px; z-index: 15;
+      transform: translateX(-100%); transition: transform .2s ease;
+    }
+    .sidebar.open { transform: translateX(0); }
+    .menu-toggle { display: block; }
+    .content { padding: 64px 20px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰ Menu</button>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-badge">PM</div>
+      <div>Study Notes</div>
+    </div>
+    <ul class="nav-list" id="nav"></ul>
+    <div class="sidebar-footer">
+      Edit <code>markdown/*.md</code> → commit → site auto-updates.
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="content-header" id="crumbs"></div>
+    <article id="article">
+      <div class="state"><div class="spinner"></div>Loading…</div>
+    </article>
+    <nav class="pager" id="pager" style="display:none;"></nav>
+  </main>
+</div>
+
+<script>
+  // --- Configure your pages here (order matters) ---
+  const PAGES = [
+    { file: "1. The-Core-Fundamentals.md",            title: "The Core Fundamentals" },
+    { file: "2. Planning and Controlling the Work.md", title: "Planning and Controlling the Work" },
+    { file: "3. SDLC and Delivery Frameworks.md",     title: "SDLC and Delivery Frameworks" },
+    { file: "4. Organizational, Team, and Strategic Context.md", title: "Organizational, Team, and Strategic Context" },
+    { file: "5. Technology and Cloud for PMs.md",     title: "Technology and Cloud for PMs" },
+    { file: "6. Future of Work, AI, and Innovation.md", title: "Future of Work, AI, and Innovation" },
+    { file: "7. Professional Growth and Certifications.md", title: "Professional Growth and Certifications" },
+  ];
+  const BASE = "markdown/";
+
+  // Marked setup with highlight.js
+  marked.setOptions({
+    gfm: true,
+    breaks: false,
+    highlight: function(code, lang) {
+      try {
+        if (lang && hljs.getLanguage(lang)) return hljs.highlight(code, { language: lang }).value;
+        return hljs.highlightAuto(code).value;
+      } catch { return code; }
+    }
+  });
+
+  const navEl = document.getElementById("nav");
+  const articleEl = document.getElementById("article");
+  const pagerEl = document.getElementById("pager");
+  const crumbsEl = document.getElementById("crumbs");
+
+  // Build sidebar
+  PAGES.forEach((p, i) => {
+    const li = document.createElement("li");
+    li.className = "nav-item";
+    li.innerHTML = `<a href="#/${i+1}"><span class="nav-num">${i+1}</span>${p.title}</a>`;
+    navEl.appendChild(li);
+  });
+
+  const cache = {};
+
+  async function loadPage(idx) {
+    const page = PAGES[idx];
+    if (!page) return;
+
+    // highlight active
+    document.querySelectorAll(".nav-item a").forEach((a, i) => {
+      a.classList.toggle("active", i === idx);
+    });
+
+    crumbsEl.innerHTML = `<span class="chip">Chapter ${idx+1} of ${PAGES.length}</span>`;
+    articleEl.innerHTML = `<div class="state"><div class="spinner"></div>Loading…</div>`;
+    pagerEl.style.display = "none";
+    window.scrollTo({ top: 0 });
+
+    try {
+      let md = cache[page.file];
+      if (!md) {
+        const res = await fetch(BASE + encodeURIComponent(page.file) + "?v=" + Date.now());
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        md = await res.text();
+        cache[page.file] = md;
+      }
+      articleEl.innerHTML = marked.parse(md);
+      // highlight code blocks
+      articleEl.querySelectorAll("pre code").forEach(b => hljs.highlightElement(b));
+      // Build pager
+      renderPager(idx);
+      // Update title
+      document.title = `${page.title} · PM Study Notes`;
+    } catch (e) {
+      articleEl.innerHTML = `<div class="state">⚠️ Failed to load <code>${page.file}</code><br><small>${e.message}</small></div>`;
+    }
+  }
+
+  function renderPager(idx) {
+    const prev = PAGES[idx - 1];
+    const next = PAGES[idx + 1];
+    pagerEl.style.display = "flex";
+    pagerEl.innerHTML = `
+      ${prev
+        ? `<a href="#/${idx}" class="prev"><span class="label">← Previous</span><span class="title">${prev.title}</span></a>`
+        : `<a class="prev disabled"><span class="label">← Previous</span><span class="title">Start</span></a>`}
+      ${next
+        ? `<a href="#/${idx+2}" class="next"><span class="label">Next →</span><span class="title">${next.title}</span></a>`
+        : `<a class="next disabled"><span class="label">Next →</span><span class="title">End</span></a>`}
+    `;
+  }
+
+  function route() {
+    const m = location.hash.match(/^#\/(\d+)/);
+    const idx = m ? Math.min(Math.max(parseInt(m[1], 10) - 1, 0), PAGES.length - 1) : 0;
+    loadPage(idx);
+    // close mobile menu
+    document.querySelector(".sidebar").classList.remove("open");
+  }
+
+  window.addEventListener("hashchange", route);
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!location.hash) location.hash = "#/1";
+    else route();
+  });
+</script>
+</body>
+</html>
