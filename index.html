@@ -13,38 +13,58 @@
 
 <style>
   :root {
-    --bg: #0f1220;
-    --bg-soft: #161a2e;
-    --panel: #1a1f38;
+    --bg: #0b0e1e;
+    --bg-soft: #11152b;
+    --panel: #1a1f3a;
+    --panel-hover: #20264a;
     --text: #e7e9f3;
     --muted: #9aa3c7;
-    --accent: #7c5cff;
-    --accent-2: #22d3ee;
     --border: #262c4a;
-    --code-bg: #0b0e1c;
-    --shadow: 0 10px 30px rgba(0,0,0,.35);
+    --code-bg: #070915;
+    --shadow: 0 10px 30px rgba(0,0,0,.45);
+    --shadow-lg: 0 20px 50px rgba(0,0,0,.55);
+
+    /* Per-chapter accents (dark theme) */
+    --c1: #7c5cff; --c1-2: #a78bfa; /* Fundamentals – violet */
+    --c2: #22d3ee; --c2-2: #06b6d4; /* Planning – cyan */
+    --c3: #34d399; --c3-2: #10b981; /* SDLC – emerald */
+    --c4: #fbbf24; --c4-2: #f59e0b; /* Org/Team – amber */
+    --c5: #60a5fa; --c5-2: #3b82f6; /* Tech/Cloud – blue */
+    --c6: #f472b6; --c6-2: #ec4899; /* Future/AI – pink */
+    --c7: #fb7185; --c7-2: #f43f5e; /* Growth – rose */
   }
   @media (prefers-color-scheme: light) {
     :root {
-      --bg: #f7f8fc;
+      --bg: #f5f6fb;
       --bg-soft: #ffffff;
       --panel: #ffffff;
-      --text: #1a1d2e;
+      --panel-hover: #f0f2fa;
+      --text: #141732;
       --muted: #5b6388;
-      --accent: #5b3df5;
-      --accent-2: #0891b2;
       --border: #e5e8f2;
       --code-bg: #0b0e1c;
       --shadow: 0 10px 30px rgba(20,20,50,.08);
+      --shadow-lg: 0 20px 50px rgba(20,20,50,.12);
     }
   }
 
   * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
   html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
-    font-size: 16px; line-height: 1.65; }
-  a { color: var(--accent); text-decoration: none; }
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+    font-size: 16px; line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent, #7c5cff); text-decoration: none; transition: color .15s ease; }
   a:hover { text-decoration: underline; }
+
+  /* Reading progress bar */
+  .progress-bar {
+    position: fixed; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--accent, #7c5cff), var(--accent-2, #22d3ee));
+    width: 0%; z-index: 100; transition: width .1s linear;
+    box-shadow: 0 0 10px var(--accent, #7c5cff);
+  }
 
   .app { display: grid; grid-template-columns: 300px 1fr; min-height: 100vh; }
 
@@ -55,137 +75,287 @@
     padding: 24px 16px;
     position: sticky; top: 0; height: 100vh; overflow-y: auto;
   }
+  .sidebar::-webkit-scrollbar { width: 6px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
   .brand {
-    display: flex; align-items: center; gap: 10px;
-    font-weight: 700; font-size: 18px; margin-bottom: 20px;
-    padding: 0 8px;
+    display: flex; align-items: center; gap: 12px;
+    font-weight: 700; font-size: 17px; margin-bottom: 8px;
+    padding: 4px 8px;
   }
   .brand-badge {
-    width: 34px; height: 34px; border-radius: 10px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    display: grid; place-items: center; color: white; font-weight: 800;
+    width: 38px; height: 38px; border-radius: 11px;
+    background: linear-gradient(135deg, #7c5cff, #22d3ee);
+    display: grid; place-items: center; color: white;
     box-shadow: var(--shadow);
   }
+  .brand-badge svg { width: 20px; height: 20px; }
+  .brand-sub { font-size: 11px; color: var(--muted); font-weight: 500; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 20px; padding: 0 8px; }
+
   .nav-list { list-style: none; padding: 0; margin: 0; }
   .nav-item a {
-    display: block; padding: 10px 12px; border-radius: 8px;
-    color: var(--text); font-size: 14px; margin-bottom: 4px;
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 9px;
+    color: var(--text); font-size: 14px; margin-bottom: 3px;
     border: 1px solid transparent;
+    transition: all .15s ease;
+    position: relative;
   }
-  .nav-item a:hover { background: var(--panel); text-decoration: none; border-color: var(--border); }
-  .nav-item a.active {
-    background: linear-gradient(135deg, rgba(124,92,255,.15), rgba(34,211,238,.10));
+  .nav-item a:hover {
+    background: var(--panel); text-decoration: none;
     border-color: var(--border);
+    transform: translateX(2px);
+  }
+  .nav-item a.active {
+    background: var(--panel);
+    border-color: var(--accent);
     color: var(--text); font-weight: 600;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent);
   }
-  .nav-num {
-    display: inline-block; width: 22px; height: 22px; line-height: 22px;
-    text-align: center; border-radius: 6px; font-size: 12px;
-    background: var(--panel); color: var(--muted); margin-right: 8px;
-    border: 1px solid var(--border);
+  .nav-item a.active::before {
+    content: ""; position: absolute; left: -16px; top: 50%;
+    transform: translateY(-50%); width: 3px; height: 22px;
+    background: var(--accent); border-radius: 0 3px 3px 0;
   }
-  .nav-item a.active .nav-num {
-    background: var(--accent); color: white; border-color: transparent;
+  .nav-icon {
+    width: 30px; height: 30px; border-radius: 8px;
+    display: grid; place-items: center;
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+    color: var(--accent);
+    flex-shrink: 0;
+    transition: all .15s ease;
   }
+  .nav-icon svg { width: 16px; height: 16px; }
+  .nav-item a:hover .nav-icon {
+    background: var(--accent);
+    color: white;
+  }
+  .nav-item a.active .nav-icon {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: white;
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+  .nav-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .nav-num { font-size: 11px; color: var(--muted); font-weight: 500; }
 
-  .sidebar-footer { margin-top: 24px; padding: 12px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); }
+  .sidebar-footer {
+    margin-top: 24px; padding: 14px 12px; font-size: 12px;
+    color: var(--muted); border-top: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .sidebar-footer svg { width: 14px; height: 14px; flex-shrink: 0; }
 
   /* Content */
-  .content { padding: 40px 56px 80px; max-width: 900px; }
-  .content-header { margin-bottom: 24px; color: var(--muted); font-size: 13px; }
-  .content-header .chip {
-    display: inline-block; padding: 4px 10px; border-radius: 999px;
-    background: var(--panel); border: 1px solid var(--border);
-  }
+  .content { padding: 48px 64px 80px; max-width: 920px; }
 
-  article h1, article h2, article h3, article h4 { line-height: 1.25; }
-  article h1 { font-size: 2.1rem; margin: 0 0 16px; }
-  article h2 { font-size: 1.5rem; margin: 2rem 0 .75rem; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
-  article h3 { font-size: 1.2rem; margin: 1.5rem 0 .5rem; color: var(--accent); }
-  article p { margin: .75rem 0; }
-  article ul, article ol { padding-left: 1.4rem; }
-  article li { margin: .3rem 0; }
-  article blockquote {
-    margin: 1rem 0; padding: 10px 16px;
-    border-left: 4px solid var(--accent); background: var(--panel);
-    border-radius: 6px; color: var(--muted);
+  .content-header {
+    margin-bottom: 32px;
+    display: flex; align-items: center; gap: 16px;
+    animation: fadeInUp .4s ease;
   }
+  .hero-icon {
+    width: 56px; height: 56px; border-radius: 14px;
+    display: grid; place-items: center;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: white; box-shadow: var(--shadow-lg);
+    flex-shrink: 0;
+  }
+  .hero-icon svg { width: 28px; height: 28px; }
+  .content-header-meta { display: flex; flex-direction: column; gap: 4px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+    font-size: 12px; font-weight: 600;
+    width: fit-content;
+  }
+  .chip svg { width: 12px; height: 12px; }
+  .header-title { font-size: 14px; color: var(--muted); }
+
+  article { animation: fadeInUp .5s ease .1s both; }
+  article h1, article h2, article h3, article h4 { line-height: 1.3; }
+  article h1 {
+    font-size: 2.3rem; margin: 0 0 18px;
+    background: linear-gradient(135deg, var(--text), var(--accent));
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  article h2 {
+    font-size: 1.55rem; margin: 2.2rem 0 .8rem;
+    padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  }
+  article h3 { font-size: 1.2rem; margin: 1.5rem 0 .5rem; color: var(--accent); }
+  article p { margin: .8rem 0; }
+  article ul, article ol { padding-left: 1.4rem; }
+  article li { margin: .35rem 0; }
+  article li::marker { color: var(--accent); }
+  article blockquote {
+    margin: 1.2rem 0; padding: 12px 18px;
+    border-left: 3px solid var(--accent);
+    background: color-mix(in srgb, var(--accent) 8%, var(--panel));
+    border-radius: 0 8px 8px 0; color: var(--text);
+  }
+  article blockquote p { margin: .3rem 0; }
   article code {
-    background: var(--panel); padding: 2px 6px; border-radius: 4px;
-    font-size: .9em; border: 1px solid var(--border);
+    background: var(--panel); padding: 2px 7px; border-radius: 5px;
+    font-size: .88em; border: 1px solid var(--border);
+    color: var(--accent); font-family: "SF Mono", Menlo, Consolas, monospace;
   }
   article pre {
-    background: var(--code-bg); padding: 16px; border-radius: 10px;
+    background: var(--code-bg); padding: 18px; border-radius: 12px;
     overflow-x: auto; border: 1px solid var(--border);
+    box-shadow: var(--shadow);
   }
   article pre code { background: transparent; border: none; padding: 0; color: #e7e9f3; }
-  article table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .95em; }
-  article th, article td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
-  article th { background: var(--panel); }
-  article img { max-width: 100%; border-radius: 8px; }
+  article table {
+    border-collapse: collapse; width: 100%; margin: 1.2rem 0;
+    font-size: .95em; border-radius: 8px; overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  article th, article td { border-bottom: 1px solid var(--border); padding: 10px 14px; text-align: left; }
+  article th {
+    background: var(--panel); font-weight: 600;
+    color: var(--accent);
+  }
+  article tr:last-child td { border-bottom: none; }
+  article tr:hover td { background: color-mix(in srgb, var(--accent) 5%, transparent); }
+  article img { max-width: 100%; border-radius: 10px; box-shadow: var(--shadow); }
   article hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+  article a { border-bottom: 1px dashed var(--accent); }
+  article a:hover { text-decoration: none; border-bottom-style: solid; }
 
   /* Pager */
   .pager {
-    display: flex; justify-content: space-between; gap: 12px;
-    margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border);
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+    margin-top: 56px; padding-top: 28px; border-top: 1px solid var(--border);
   }
   .pager a {
-    flex: 1; padding: 14px 18px; border: 1px solid var(--border);
-    border-radius: 10px; background: var(--panel); color: var(--text);
-    transition: transform .15s ease, border-color .15s ease;
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 20px; border: 1px solid var(--border);
+    border-radius: 12px; background: var(--panel); color: var(--text);
+    transition: all .2s ease; overflow: hidden;
   }
-  .pager a:hover { transform: translateY(-2px); border-color: var(--accent); text-decoration: none; }
-  .pager .label { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
-  .pager .title { display: block; font-weight: 600; margin-top: 4px; }
-  .pager .next { text-align: right; }
-  .pager .disabled { opacity: .4; pointer-events: none; }
+  .pager a:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    box-shadow: 0 10px 25px color-mix(in srgb, var(--accent) 20%, transparent);
+    text-decoration: none;
+    background: var(--panel-hover);
+  }
+  .pager .pager-icon {
+    width: 36px; height: 36px; border-radius: 9px;
+    display: grid; place-items: center;
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+    color: var(--accent); flex-shrink: 0;
+    transition: all .2s ease;
+  }
+  .pager a:hover .pager-icon {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: white;
+  }
+  .pager-icon svg { width: 18px; height: 18px; }
+  .pager .label { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
+  .pager .title { display: block; font-weight: 600; margin-top: 3px; font-size: 14px; }
+  .pager .pager-text { flex: 1; min-width: 0; }
+  .pager .pager-text .title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pager .next { flex-direction: row-reverse; text-align: right; }
+  .pager .disabled { opacity: .35; pointer-events: none; }
 
   /* Loading / error */
-  .state { padding: 40px; text-align: center; color: var(--muted); }
+  .state { padding: 60px; text-align: center; color: var(--muted); }
   .spinner {
-    width: 36px; height: 36px; border-radius: 50%;
+    width: 40px; height: 40px; border-radius: 50%;
     border: 3px solid var(--border); border-top-color: var(--accent);
-    animation: spin 1s linear infinite; margin: 0 auto 16px;
+    animation: spin 1s linear infinite; margin: 0 auto 20px;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Scroll to top */
+  .scroll-top {
+    position: fixed; bottom: 28px; right: 28px;
+    width: 46px; height: 46px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent, #7c5cff), var(--accent-2, #22d3ee));
+    color: white; border: none; cursor: pointer;
+    display: grid; place-items: center;
+    opacity: 0; pointer-events: none;
+    transition: all .3s ease;
+    box-shadow: var(--shadow-lg);
+    z-index: 20;
+  }
+  .scroll-top.show { opacity: 1; pointer-events: auto; }
+  .scroll-top:hover { transform: translateY(-3px); }
+  .scroll-top svg { width: 20px; height: 20px; }
 
   /* Mobile */
   .menu-toggle {
-    display: none; position: fixed; top: 14px; left: 14px; z-index: 20;
+    display: none; position: fixed; top: 14px; left: 14px; z-index: 25;
     background: var(--panel); color: var(--text); border: 1px solid var(--border);
-    padding: 8px 12px; border-radius: 8px; cursor: pointer;
+    padding: 10px; border-radius: 10px; cursor: pointer;
+    box-shadow: var(--shadow);
   }
-  @media (max-width: 860px) {
+  .menu-toggle svg { width: 20px; height: 20px; display: block; }
+  .backdrop {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.5); z-index: 14;
+  }
+  .backdrop.show { display: block; }
+
+  @media (max-width: 900px) {
     .app { grid-template-columns: 1fr; }
     .sidebar {
-      position: fixed; left: 0; top: 0; width: 280px; z-index: 15;
-      transform: translateX(-100%); transition: transform .2s ease;
+      position: fixed; left: 0; top: 0; width: 290px; z-index: 15;
+      transform: translateX(-100%); transition: transform .25s ease;
+      box-shadow: var(--shadow-lg);
     }
     .sidebar.open { transform: translateX(0); }
     .menu-toggle { display: block; }
-    .content { padding: 64px 20px 60px; }
+    .content { padding: 70px 20px 60px; }
+    .pager { grid-template-columns: 1fr; }
+    article h1 { font-size: 1.8rem; }
   }
 </style>
 </head>
 <body>
 
-<button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰ Menu</button>
+<div class="progress-bar" id="progressBar"></div>
+
+<button class="menu-toggle" onclick="toggleMenu()" aria-label="Menu">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+</button>
+
+<div class="backdrop" id="backdrop" onclick="toggleMenu()"></div>
 
 <div class="app">
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
     <div class="brand">
-      <div class="brand-badge">PM</div>
+      <div class="brand-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      </div>
       <div>Study Notes</div>
     </div>
+    <div class="brand-sub">Project Management</div>
+
     <ul class="nav-list" id="nav"></ul>
+
     <div class="sidebar-footer">
-      Edit <code>markdown/*.md</code> → commit → site auto-updates.
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      <span>Edit <code style="background:var(--panel);padding:1px 5px;border-radius:4px;font-size:11px;">*.md</code> → commit → auto-update</span>
     </div>
   </aside>
 
   <main class="content">
-    <div class="content-header" id="crumbs"></div>
+    <div class="content-header" id="contentHeader" style="display:none;">
+      <div class="hero-icon" id="heroIcon"></div>
+      <div class="content-header-meta">
+        <span class="chip" id="chapterChip"></span>
+        <span class="header-title" id="headerTitle"></span>
+      </div>
+    </div>
     <article id="article">
       <div class="state"><div class="spinner"></div>Loading…</div>
     </article>
@@ -193,23 +363,40 @@
   </main>
 </div>
 
+<button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Scroll to top">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+
 <script>
-  // --- Configure your pages here (order matters) ---
+  // --- Lucide SVG icons (inline) ---
+  const ICONS = {
+    book: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>',
+    calendar: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 16 2 2 4-4"/></svg>',
+    gitBranch: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>',
+    users: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+    cloud: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19a4.5 4.5 0 1 0 0-9h-1.8A7 7 0 1 0 4 15.7"/><path d="m8 17 4 4 4-4"/><path d="M12 12v9"/></svg>',
+    sparkles: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/><path d="M5 3v4M19 17v4M3 5h4M17 19h4"/></svg>',
+    graduation: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>',
+    arrowLeft: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>',
+    arrowRight: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
+    bookmark: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>',
+  };
+
+  // --- Configure your pages here ---
   const PAGES = [
-    { file: "1. The-Core-Fundamentals.md",            title: "The Core Fundamentals" },
-    { file: "2. Planning and Controlling the Work.md", title: "Planning and Controlling the Work" },
-    { file: "3. SDLC and Delivery Frameworks.md",     title: "SDLC and Delivery Frameworks" },
-    { file: "4. Organizational, Team, and Strategic Context.md", title: "Organizational, Team, and Strategic Context" },
-    { file: "5. Technology and Cloud for PMs.md",     title: "Technology and Cloud for PMs" },
-    { file: "6. Future of Work, AI, and Innovation.md", title: "Future of Work, AI, and Innovation" },
-    { file: "7. Professional Growth and Certifications.md", title: "Professional Growth and Certifications" },
+    { file: "1. The-Core-Fundamentals.md",            title: "The Core Fundamentals", icon: "book",       color: 1 },
+    { file: "2. Planning and Controlling the Work.md", title: "Planning and Controlling the Work", icon: "calendar",   color: 2 },
+    { file: "3. SDLC and Delivery Frameworks.md",     title: "SDLC and Delivery Frameworks", icon: "gitBranch",  color: 3 },
+    { file: "4. Organizational, Team, and Strategic Context.md", title: "Organizational, Team, and Strategic Context", icon: "users",      color: 4 },
+    { file: "5. Technology and Cloud for PMs.md",     title: "Technology and Cloud for PMs", icon: "cloud",      color: 5 },
+    { file: "6. Future of Work, AI, and Innovation.md", title: "Future of Work, AI, and Innovation", icon: "sparkles",   color: 6 },
+    { file: "7. Professional Growth and Certifications.md", title: "Professional Growth and Certifications", icon: "graduation", color: 7 },
   ];
   const BASE = "markdown/";
 
   // Marked setup with highlight.js
   marked.setOptions({
-    gfm: true,
-    breaks: false,
+    gfm: true, breaks: false,
     highlight: function(code, lang) {
       try {
         if (lang && hljs.getLanguage(lang)) return hljs.highlight(code, { language: lang }).value;
@@ -221,28 +408,50 @@
   const navEl = document.getElementById("nav");
   const articleEl = document.getElementById("article");
   const pagerEl = document.getElementById("pager");
-  const crumbsEl = document.getElementById("crumbs");
+  const headerEl = document.getElementById("contentHeader");
+  const heroIconEl = document.getElementById("heroIcon");
+  const chapterChipEl = document.getElementById("chapterChip");
+  const headerTitleEl = document.getElementById("headerTitle");
+  const progressBar = document.getElementById("progressBar");
+  const scrollTopBtn = document.getElementById("scrollTop");
 
   // Build sidebar
   PAGES.forEach((p, i) => {
     const li = document.createElement("li");
     li.className = "nav-item";
-    li.innerHTML = `<a href="#/${i+1}"><span class="nav-num">${i+1}</span>${p.title}</a>`;
+    li.innerHTML = `
+      <a href="#/${i+1}" style="--accent: var(--c${p.color}); --accent-2: var(--c${p.color}-2);">
+        <span class="nav-icon">${ICONS[p.icon]}</span>
+        <span class="nav-title">
+          <div>${p.title}</div>
+          <div class="nav-num">Chapter ${i+1}</div>
+        </span>
+      </a>`;
     navEl.appendChild(li);
   });
 
   const cache = {};
 
+  function setAccent(colorIdx) {
+    document.documentElement.style.setProperty('--accent', `var(--c${colorIdx})`);
+    document.documentElement.style.setProperty('--accent-2', `var(--c${colorIdx}-2)`);
+  }
+
   async function loadPage(idx) {
     const page = PAGES[idx];
     if (!page) return;
 
-    // highlight active
+    setAccent(page.color);
+
     document.querySelectorAll(".nav-item a").forEach((a, i) => {
       a.classList.toggle("active", i === idx);
     });
 
-    crumbsEl.innerHTML = `<span class="chip">Chapter ${idx+1} of ${PAGES.length}</span>`;
+    headerEl.style.display = "flex";
+    heroIconEl.innerHTML = ICONS[page.icon];
+    chapterChipEl.innerHTML = `${ICONS.bookmark} Chapter ${idx+1} of ${PAGES.length}`;
+    headerTitleEl.textContent = page.title;
+
     articleEl.innerHTML = `<div class="state"><div class="spinner"></div>Loading…</div>`;
     pagerEl.style.display = "none";
     window.scrollTo({ top: 0 });
@@ -255,12 +464,13 @@
         md = await res.text();
         cache[page.file] = md;
       }
+      // Strip leading H1 if it duplicates the title (optional)
       articleEl.innerHTML = marked.parse(md);
-      // highlight code blocks
+      articleEl.style.animation = "none";
+      articleEl.offsetHeight; // reflow
+      articleEl.style.animation = "";
       articleEl.querySelectorAll("pre code").forEach(b => hljs.highlightElement(b));
-      // Build pager
       renderPager(idx);
-      // Update title
       document.title = `${page.title} · PM Study Notes`;
     } catch (e) {
       articleEl.innerHTML = `<div class="state">⚠️ Failed to load <code>${page.file}</code><br><small>${e.message}</small></div>`;
@@ -270,24 +480,63 @@
   function renderPager(idx) {
     const prev = PAGES[idx - 1];
     const next = PAGES[idx + 1];
-    pagerEl.style.display = "flex";
+    pagerEl.style.display = "grid";
     pagerEl.innerHTML = `
       ${prev
-        ? `<a href="#/${idx}" class="prev"><span class="label">← Previous</span><span class="title">${prev.title}</span></a>`
-        : `<a class="prev disabled"><span class="label">← Previous</span><span class="title">Start</span></a>`}
+        ? `<a href="#/${idx}" class="prev">
+             <span class="pager-icon">${ICONS.arrowLeft}</span>
+             <span class="pager-text">
+               <span class="label">Previous</span>
+               <span class="title">${prev.title}</span>
+             </span>
+           </a>`
+        : `<a class="prev disabled">
+             <span class="pager-icon">${ICONS.arrowLeft}</span>
+             <span class="pager-text">
+               <span class="label">Previous</span>
+               <span class="title">Start</span>
+             </span>
+           </a>`}
       ${next
-        ? `<a href="#/${idx+2}" class="next"><span class="label">Next →</span><span class="title">${next.title}</span></a>`
-        : `<a class="next disabled"><span class="label">Next →</span><span class="title">End</span></a>`}
+        ? `<a href="#/${idx+2}" class="next">
+             <span class="pager-icon">${ICONS.arrowRight}</span>
+             <span class="pager-text">
+               <span class="label">Next</span>
+               <span class="title">${next.title}</span>
+             </span>
+           </a>`
+        : `<a class="next disabled">
+             <span class="pager-icon">${ICONS.arrowRight}</span>
+             <span class="pager-text">
+               <span class="label">Next</span>
+               <span class="title">End</span>
+             </span>
+           </a>`}
     `;
+  }
+
+  function toggleMenu() {
+    document.getElementById("sidebar").classList.toggle("open");
+    document.getElementById("backdrop").classList.toggle("show");
   }
 
   function route() {
     const m = location.hash.match(/^#\/(\d+)/);
     const idx = m ? Math.min(Math.max(parseInt(m[1], 10) - 1, 0), PAGES.length - 1) : 0;
     loadPage(idx);
-    // close mobile menu
-    document.querySelector(".sidebar").classList.remove("open");
+    document.getElementById("sidebar").classList.remove("open");
+    document.getElementById("backdrop").classList.remove("show");
   }
+
+  // Reading progress + scroll-to-top visibility
+  window.addEventListener("scroll", () => {
+    const h = document.documentElement;
+    const scrolled = h.scrollTop;
+    const total = h.scrollHeight - h.clientHeight;
+    const pct = total > 0 ? (scrolled / total) * 100 : 0;
+    progressBar.style.width = pct + "%";
+    scrollTopBtn.classList.toggle("show", scrolled > 400);
+  });
 
   window.addEventListener("hashchange", route);
   window.addEventListener("DOMContentLoaded", () => {
