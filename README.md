@@ -1,5 +1,5 @@
 # fly-pm-hub-engine
-Core infrastructure and technical framework for the Fly PM Hub adaptive learning ecosystem
+Core infrastructure and technical framework for the Fly PM Hub adaptive learning ecosystem  
 
 # Fly PM Hub: Knowledge Repository
 **Project Goal**. The goal of this project is to transform the Fly PM Hub curriculum into a structured, interactive digital environment. It is designed to help senior IT leaders move from theoretical knowledge to practical, high-level strategic decision-making.
